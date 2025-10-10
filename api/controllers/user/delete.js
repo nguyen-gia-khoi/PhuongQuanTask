@@ -12,17 +12,8 @@ module.exports = {
 
   fn: async function (inputs, exits) {
     try {
-      try {
-        await sails.helpers.validateUserExists.with({ email: inputs.email, shouldExist: false });
-       
-      } catch (err) {
-       if( err.exit === 'userNotFound') {
-          return exits.notFound({ message: 'User not found' });
-       }
-      }
-      await User.destroyOne({ email: inputs.email });
-      return exits.success({ message: 'User deleted successfully' });
-
+      const result = await sails.helpers.user.destroyUser.with({ email: inputs.email });
+      return exits.success(result);
     } catch (error) {
       sails.log.error(error);
       return exits.serverError({ error: error.message });

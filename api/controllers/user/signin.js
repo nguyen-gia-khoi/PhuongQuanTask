@@ -17,21 +17,24 @@ module.exports = {
     try {
       
       try {
-        await sails.helpers.validateUserExists.with({ email: inputs.email, shouldExist: false });
+        await sails.helpers.user.validateUserExists.with({ email: inputs.email, shouldExist: false });
       } catch (err) {
         if( err.exit === 'userNotFound') {
           return exits.notFound({ message: 'User not found' });
        }
       }
       
-      const user = await sails.helpers.findUserByEmail.with({ email: inputs.email });
+      const user = await sails.helpers.user.findUserByEmail.with({ email: inputs.email });
 
-      const ok = await UserServices.comparePassword(inputs.password, user.password);
+      const ok = await sails.helpers.user.comparePassword.with({
+        password: inputs.password,
+        hash: user.password
+      });
       if (!ok) {
         return exits.validationError({ reason: 'invalid_credentials' });
       }
 
-      const token = await sails.helpers.generateToken.with({ user });
+      const token = await sails.helpers.utils.generateToken.with({ user });
       return exits.success({ token });
     } catch (error) {
       sails.log.error(error);

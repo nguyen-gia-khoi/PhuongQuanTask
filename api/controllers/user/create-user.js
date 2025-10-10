@@ -1,8 +1,4 @@
 
-
-const bcrypt = require('bcrypt');
-const exitsGlobal = require('../../constants/exits'); // import global exits
-
 /**
  * @swagger
  * /create-user:
@@ -67,6 +63,9 @@ const exitsGlobal = require('../../constants/exits'); // import global exits
  *       500:
  *         description: Server error
  */
+const exitsGlobal = require('../../constants/exits'); // import global exits
+
+
 module.exports = {
   friendlyName: 'Create user',
   description: 'Create a new user',
@@ -83,35 +82,15 @@ module.exports = {
 
   fn: async function (inputs, exits) {
     try {
-      // Kiểm tra email đã tồn tại chưa
-     try {
-        await sails.helpers.validateUserExists.with({
-          email: inputs.email,
-          shouldExist: true, // kiểm tra user có tồn tại hay không
-        });
-      } catch (err) {
-        if (err.exit === 'emailExists') {
-          return exits.conflict({ message: 'Email already exists' });
-        }
-        throw err; // ném lại lỗi khác
-      }
-
-      // Hash password trước khi lưu
-      const hashedPassword = await UserServices.hashPassword(inputs.password);
-
-      // Tạo UUID cho user
-      const id = await sails.helpers.generateUuid();
-      // Tạo user mới
-      const newUser = await User.create({
-        id,
+      
+      const newUser = await sails.helpers.user.createUser.with({
         name: inputs.name,
         email: inputs.email,
-        password: hashedPassword,
+        password: inputs.password,
         description: inputs.description,
         age: inputs.age
-      }).fetch();
-
-      return exits.success({ user: newUser });
+      });
+      return exits.success({ newUser });
     } catch (error) {
       console.error(error);
       return exits.serverError({ error: error.message });

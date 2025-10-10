@@ -38,17 +38,8 @@ module.exports = {
 
   fn: async function (inputs, exits) {
     try {
-     
-
-      const updatedUser = await User.updateOne({ email: inputs.email }).set({
-        name: inputs.name, description: inputs.description, age: inputs.age
-      });
-
-      if (!updatedUser) {
-        return exits.validationError({ reason: 'user_not_found' });
-      }
-
-      return exits.success({ user: updatedUser });
+      const result = await sails.helpers.user.update.with({ email: inputs.email, name: inputs.name, description: inputs.description, age: inputs.age });
+      return exits.success(result);
     } catch (error) {
       sails.log.error(error);
       return exits.serverError({ error: error.message });

@@ -41,6 +41,7 @@ module.exports['swagger-generator'] = {
     jsdoc: true,
     route: true
   },
+
   components: {
   schemas: {
     User: {
@@ -56,40 +57,40 @@ module.exports['swagger-generator'] = {
   },
 },
 
-  // excludeDeprecatedPutBlueprintRoutes: true,
-  // includeRoute: function (routeInfo) {
-  //   if (routeInfo.verb === 'put' && routeInfo.path.includes('/user/:id')) {
-  //     return false;
-  //   }
-  //   return true;
-  // },
+  excludeDeprecatedPutBlueprintRoutes: true,
+  includeRoute: function (routeInfo) {
+    if (routeInfo.verb === 'put' && routeInfo.path.includes('/user/:id')) {
+      return false;
+    }
+    return true;
+  },
  
-  // updateBlueprintActionTemplates: function (blueprintActionTemplates) {
-  //   blueprintActionTemplates.update = {
-  //     summary: 'Update {globalId}',
-  //     description: 'Update an existing {globalId} record',
-  //     security: [{ bearerAuthorization: [] }],
-  //     responses: {
-  //       '200': { description: 'User updated successfully' }
-  //     }
-  //   };
-  //   blueprintActionTemplates.destroy = {
-  //     summary: 'Delete {globalId}',
-  //     description: 'Delete an existing {globalId} record',
-  //     security: [{ bearerAuthorization: [] }],
-  //     responses: {
-  //       '200': { description: 'User deleted successfully' },
-  //       '404': { description: 'User not found' }
-  //     }
-  //   };
-  //   return blueprintActionTemplates;
-  // },
-  // postProcess: function (specifications) {
-  //   const paths = specifications.paths;
-  //   if (paths['/user/{email}']) {
-  //     paths['/user/{email}'].put = { ...paths['/user/{email}'].put };
-  //     paths['/user/{email}'].delete = { ...paths['/user/{email}'].delete };
-  //   }
-  // },
+  updateBlueprintActionTemplates: function (blueprintActionTemplates) {
+    blueprintActionTemplates.update = {
+      summary: 'Update {globalId}',
+      description: 'Update an existing {globalId} record',
+      security: [{ bearerAuthorization: [] }],
+      responses: {
+        '200': { description: 'User updated successfully' }
+      }
+    };
+    blueprintActionTemplates.destroy = {
+      summary: 'Delete {globalId}',
+      description: 'Delete an existing {globalId} record',
+      security: [{ bearerAuthorization: [] }],
+      responses: {
+        '200': { description: 'User deleted successfully' },
+        '404': { description: 'User not found' }
+      }
+    };
+    return blueprintActionTemplates;
+  },
+  postProcess: function (specifications) {
+    const paths = specifications.paths;
+    if (paths['/user/{email}']) {
+      paths['/user/{email}'].put = { ...paths['/user/{email}'].put };
+      paths['/user/{email}'].delete = { ...paths['/user/{email}'].delete };
+    }
+  },
   
 };

@@ -20,7 +20,7 @@ module.exports = {
 
   fn: async function (inputs, exits) {
     try {
-       const result = await sails.helpers.getUser.with({
+       const result = await sails.helpers.user.getUser.with({
         page: inputs.page,
         limit: inputs.limit,
       });

@@ -6,7 +6,7 @@ module.exports = {
 
   inputs: {
     data: {
-      type: 'ref',  // ✅ Nhận object từ controller
+      type: 'ref', 
       required: true,
       description: 'Object containing user data (name, email, password, etc)'
     }

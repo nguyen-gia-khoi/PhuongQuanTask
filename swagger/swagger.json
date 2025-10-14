@@ -159,7 +159,7 @@
     "/user": {
       "get": {
         "summary": "List users",
-        "description": "Retrieve a list of all users. This endpoint allows you to fetch user details such as name, email, description, age, and status. Results are sorted by creation date in descending order. Use query parameters like \"limit\" or \"skip\" for pagination. Excludes sensitive fields like \"id\" and \"password\" from the response.",
+        "description": "Retrieve a list of all users with pagination and filters.",
         "tags": [
           "User"
         ],
@@ -187,35 +187,48 @@
               "example": 10
             },
             "description": "Số lượng user trên mỗi trang"
+          },
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Lọc theo tên"
+          },
+          {
+            "in": "query",
+            "name": "age",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Lọc theo tuổi"
+          },
+          {
+            "in": "query",
+            "name": "email",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Lọc theo email"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Lọc theo trạng thái"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "description": "Request succeeded"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Input validation error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Conflict error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Server error"
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Bad request"
@@ -250,16 +263,17 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "User's full name"
           },
           {
             "in": "query",
             "name": "email",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "email"
-            }
+              "type": "string"
+            },
+            "description": "User's email address"
           },
           {
             "in": "query",
@@ -268,16 +282,17 @@
             "schema": {
               "type": "string",
               "minLength": 6
-            }
+            },
+            "description": "User's password (minimum 6 characters)"
           },
           {
             "in": "query",
             "name": "description",
             "required": false,
             "schema": {
-              "type": "string",
-              "nullable": true
-            }
+              "type": "string"
+            },
+            "description": "Optional user description"
           },
           {
             "in": "query",
@@ -286,38 +301,15 @@
             "schema": {
               "type": "number",
               "format": "double",
-              "nullable": true,
+              "maximum": 150,
               "minimum": 0
-            }
+            },
+            "description": "User's age"
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "description": "Request succeeded"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Input validation error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Conflict error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Server error"
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Bad request"
@@ -337,97 +329,6 @@
           "500": {
             "description": "Internal server error"
           }
-        },
-        "post": {
-          "tags": [
-            "User"
-          ],
-          "summary": "Create a new user",
-          "description": "Create a new user with name, email, password and optional fields",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "name",
-                    "email",
-                    "password"
-                  ],
-                  "properties": {
-                    "name": {
-                      "type": "string",
-                      "example": "John Doe",
-                      "description": "User's full name"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email",
-                      "example": "john@example.com",
-                      "description": "User's email address"
-                    },
-                    "password": {
-                      "type": "string",
-                      "minLength": 6,
-                      "example": "123456",
-                      "description": "User's password (minimum 6 characters)"
-                    },
-                    "description": {
-                      "type": "string",
-                      "example": "Software developer",
-                      "description": "Optional user description"
-                    },
-                    "age": {
-                      "type": "number",
-                      "minimum": 0,
-                      "example": 25,
-                      "description": "User's age"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": "User created successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "success": {
-                        "type": "boolean",
-                        "example": true
-                      },
-                      "message": {
-                        "type": "string",
-                        "example": "User created successfully"
-                      },
-                      "data": {
-                        "type": "object",
-                        "properties": {
-                          "user": {
-                            "$ref": "#/components/schemas/User"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Validation error"
-            },
-            "409": {
-              "description": "Email already exists"
-            },
-            "500": {
-              "description": "Server error"
-            }
-          }
         }
       }
     },
@@ -444,8 +345,7 @@
             "name": "email",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "email"
+              "type": "string"
             }
           },
           {
@@ -459,31 +359,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "description": "Request succeeded"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Input validation error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Conflict error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Server error"
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Bad request"
@@ -525,31 +401,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "description": "Request succeeded"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Input validation error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Conflict error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Server error"
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Bad request"
@@ -613,35 +465,20 @@
               "format": "double",
               "nullable": true
             }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "oneOf": [
-                    {
-                      "type": "string",
-                      "description": "Request succeeded"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Input validation error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Conflict error"
-                    },
-                    {
-                      "type": "string",
-                      "description": "Server error"
-                    }
-                  ]
-                }
-              }
-            }
+            "description": "Success"
           },
           "400": {
             "description": "Bad request"
@@ -660,47 +497,6 @@
           },
           "500": {
             "description": "Internal server error"
-          }
-        },
-        "delete": {
-          "tags": [
-            "User"
-          ],
-          "summary": "Delete a user by email",
-          "operationId": "deleteUserByEmail",
-          "security": [
-            {
-              "bearerAuthorization": []
-            }
-          ],
-          "parameters": [
-            {
-              "in": "path",
-              "name": "email",
-              "required": true,
-              "schema": {
-                "type": "string",
-                "format": "email"
-              },
-              "example": "john@example.com"
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "User deleted successfully"
-            },
-            "401": {
-              "description": "Unauthorized"
-            },
-            "403": {
-              "description": "Forbidden"
-            },
-            "404": {
-              "description": "User not found"
-            },
-            "500": {
-              "description": "Server error"
-            }
           }
         }
       }

@@ -1,5 +1,3 @@
-const exitsGlobal = require('../../constants/exits');
-
 module.exports = {
   friendlyName: 'Delete user',
   description: 'Delete a user by email',
@@ -8,15 +6,18 @@ module.exports = {
     email: { type: 'string', required: true }
   },
 
-  exits: exitsGlobal,
-
-  fn: async function (inputs, exits) {
+  fn: async function (inputs) {
     try {
       const result = await sails.helpers.user.destroyUser.with({ email: inputs.email });
-      return exits.success(result);
-    } catch (error) {
-      sails.log.error(error);
-      return exits.serverError({ error: error.message });
+      return this.res.success(result);
+    } catch (err) {
+      sails.log.error('Error in delete users:', err);
+
+      if (err.code) {
+        return this.res.fail(err.code);
+      }
+
+      return this.res.fail('ERROR99');
     }
   }
 };

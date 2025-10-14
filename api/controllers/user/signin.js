@@ -1,44 +1,59 @@
-
+// api/controllers/user/signin.js
 const jwt = require('jsonwebtoken');
-const exitsGlobal = require('../../constants/exits');
 
 module.exports = {
   friendlyName: 'Sign in',
   description: 'Sign in with email and password',
 
   inputs: {
-    email: { type: 'string', required: true, isEmail: true },
-    password: { type: 'string', required: true }
+    email: { type: 'string', required: true },
+    password: { type: 'string', required: true },
   },
 
-  exits: exitsGlobal,
-
-  fn: async function (inputs, exits) {
+  fn: async function (inputs) {
     try {
-      
-      try {
-        await sails.helpers.user.validateUserExists.with({ email: inputs.email, shouldExist: false });
-      } catch (err) {
-        if( err.exit === 'userNotFound') {
-          return exits.notFound({ message: 'User not found' });
-       }
-      }
-      
-      const user = await sails.helpers.user.findUserByEmail.with({ email: inputs.email });
+     
 
-      const ok = await sails.helpers.user.comparePassword.with({
+      // 1. Validate email format
+      await sails.helpers.user.validateEmail.with({
+        email: inputs.email
+      });
+
+      // 2. Check email PHẢI tồn tại
+      await sails.helpers.user.checkEmailExits.with({
+        email: inputs.email,
+        shouldExist: true  // ✅ Email phải tồn tại
+      });
+
+      // 3. Get user
+      const user = await sails.models.user.findOne({ 
+        email: inputs.email 
+      });    
+      
+
+      // 4. Compare password
+      await sails.helpers.user.comparePassword.with({
         password: inputs.password,
         hash: user.password
       });
-      if (!ok) {
-        return exits.validationError({ reason: 'invalid_credentials' });
+
+      // 5. Generate token
+      const token = await sails.helpers.utils.generateToken.with({ user });
+
+      // 6. Return success
+      return this.res.success({
+        message: 'Login successful',
+        token: token
+      });
+
+    } catch (err) {
+      sails.log.error('Error in signin:', err);
+
+      if (err.code) {
+        return this.res.fail(err.code);
       }
 
-      const token = await sails.helpers.utils.generateToken.with({ user });
-      return exits.success({ token });
-    } catch (error) {
-      sails.log.error(error);
-      return exits.serverError({ error: error.message });
+      return this.res.fail('ERROR99');  // Internal server error
     }
   }
 };

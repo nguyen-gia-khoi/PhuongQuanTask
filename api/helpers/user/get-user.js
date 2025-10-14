@@ -1,52 +1,77 @@
+const _ = require('lodash');
 
 module.exports = {
-    friendlyName: 'Get user',
-    description: 'Get all users from the database.',
+  friendlyName: 'Get users',
+  description: 'Get all users from the database.',
 
-   
   inputs: {
-    page: {
-      type: 'number',
-      defaultsTo: 1,
-      description: 'Trang hiện tại (mặc định là 1)',
-    },
-    limit: {
-      type: 'number',
-      defaultsTo: 10,
-      description: 'Số lượng user mỗi trang (mặc định là 10)',
-    },
+    data: {
+      type: 'ref',  // ✅ Nhận object từ controller
+      required: true,
+      description: 'Object containing user data (name, email, password, etc)'
+    }
   },
 
-  exits: {
-    success: {
-      description: 'Danh sách user và tổng số user đã được trả về thành công.',
-    },
-  },
-
-  fn: async function (inputs, exits) {
+  fn: async function (inputs) {
     try {
-      // Tính toán skip và limit để phân trang
-      const skip = (inputs.page - 1) * inputs.limit;
+      const { 
+        name, 
+        email, 
+        age ,
+        page=1,
+        limit=10,
+        
+      } = inputs.data || {};
+      
+      if (email) {
+        await sails.helpers.user.validateEmail.with({
+          email: email  // ← Dùng email từ data
+        });
+        await sails.helpers.user.checkEmailExits.with({
+          email: email,
+          shouldExist: true  // ← Email PHẢI tồn tại
+        });
+      }
+      
+      
+      
+      const skip = (page - 1) * limit;
 
-      // Lấy tổng số user trong database
-      const totalUsers = await User.count();
+      const filter = _.pickBy(
+        _.pick(inputs.data, ['age', 'email', 'description','name']),
+        _.identity
+      );
+      
+      const totalUsers = await sails.models.user.count({ where: filter });
 
-      // Lấy danh sách user có phân trang & sắp xếp theo ngày tạo mới nhất
-      const users = await User.find({
+      const users = await sails.models.user.find({
+        where: filter,
         sort: 'createdAt DESC',
         skip,
-        limit: inputs.limit,
+        limit: limit,
       });
 
-      // Trả về kết quả
-      return exits.success({
+      if (!users || users.length === 0) {
+        const error = new Error('No users found');
+        error.code = 'ERROR01'; 
+        throw error;
+      }
+
+      const sanitized = users.map(({ id, password, ...rest }) => rest);
+
+      return {
         total: totalUsers,
         page: inputs.page,
         limit: inputs.limit,
-        data: users,
-      });
-    } catch (error) {
-      return exits.error(error);
+        data: sanitized,
+      };
+    } catch (err) {
+      if (!err.code) {
+        const error = new Error(err.message || 'Internal server error');
+        error.code = 'ERROR99';  // Sửa ERR500 → ERROR99 cho đồng bộ
+        throw error;
+      }
+      throw err;
     }
   },
 };

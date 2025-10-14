@@ -1,99 +1,59 @@
-
-/**
- * @swagger
- * /create-user:
- *   post:
- *     tags: [User]
- *     summary: Create a new user
- *     description: Create a new user with name, email, password and optional fields
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email, password]
- *             properties:
- *               name:
- *                 type: string
- *                 example: "John Doe"
- *                 description: "User's full name"
- *               email:
- *                 type: string
- *                 format: email
- *                 example: "john@example.com"
- *                 description: "User's email address"
- *               password:
- *                 type: string
- *                 minLength: 6
- *                 example: "123456"
- *                 description: "User's password (minimum 6 characters)"
- *               description:
- *                 type: string
- *                 example: "Software developer"
- *                 description: "Optional user description"
- *               age:
- *                 type: number
- *                 minimum: 0
- *                 example: 25
- *                 description: "User's age"
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "User created successfully"
- *                 data:
- *                   type: object
- *                   properties:
- *                     user:
- *                       $ref: '#/components/schemas/User'
- *       400:
- *         description: Validation error
- *       409:
- *         description: Email already exists
- *       500:
- *         description: Server error
- */
-const exitsGlobal = require('../../constants/exits'); // import global exits
-
-
+// api/controllers/user/create-user.js
 module.exports = {
   friendlyName: 'Create user',
   description: 'Create a new user',
 
   inputs: {
-    name: { type: 'string', required: true },
-    email: { type: 'string', required: true, isEmail: true },
-    password: { type: 'string', required: true, minLength: 6 },
-    description: { type: 'string', allowNull: true },
-    age: { type: 'number', allowNull: true, min: 0 }
+    name: { 
+      type: 'string', 
+      required: true,
+      description: "User's full name"
+    },
+    email: { 
+      type: 'string', 
+      required: true,
+      description: "User's email address"
+    },
+    password: { 
+      type: 'string', 
+      required: true, 
+      minLength: 6,
+      description: "User's password (minimum 6 characters)"
+    },
+    description: { 
+      type: 'string',
+      description: "Optional user description"
+    },
+    age: { 
+      type: 'number',
+      min: 0,
+      max: 150,
+      description: "User's age"
+    }
   },
 
-  exits: exitsGlobal,
-
-  fn: async function (inputs, exits) {
+  fn: async function (inputs) {
     try {
-      
-      const newUser = await sails.helpers.user.createUser.with({
-        name: inputs.name,
-        email: inputs.email,
-        password: inputs.password,
-        description: inputs.description,
-        age: inputs.age
+      // Gọi helper với inputs
+      const result = await sails.helpers.user.createUser.with({
+        data: inputs
       });
-      return exits.success({ newUser });
-    } catch (error) {
-      console.error(error);
-      return exits.serverError({ error: error.message });
+
+      // Success response
+      return this.res.success({
+        data: result.user,
+        message: 'User created successfully',
+        status: 201
+      });
+
+    } catch (err) {
+      sails.log.error('Error in create-user:', err);
+
+      if (err.code) {
+        return this.res.fail(err.code);
+      }
+
+      return this.res.fail('ERROR99');
     }
   }
 };

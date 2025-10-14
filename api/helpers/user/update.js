@@ -1,36 +1,67 @@
-const { description } = require("./compare-password");
+const _ = require('lodash');
 
 module.exports = {
     friendlyName: 'Update user',
     description: 'Update user by email',
     inputs: {
-      email: { type: 'string', required: true },
-      name: { type: 'string', required: false },
-      age: { type: 'number', required: false, min: 0 },
-      description: { type: 'string', required: false }
+      data: {
+        type: 'ref',
+        required: true,
+        description: 'Object containing email and fields to update'
+      }
     },
-    exits: {
-        success: { description: 'User updated successfully.' },
-        fail: { description: 'Failed to update user.' },
-        notFound: { description: 'User not found.' }
-    },
-    fn: async function (inputs, exits) {
-      sails.log.info('>>> helpers.user =', sails.helpers.user);
+    fn: async function (inputs) {
       try {
-          try {
-            await sails.helpers.user.validateUserExists.with({ email: inputs.email, shouldExist: false });
-        } catch (err) {
-            if( err.exit === 'userNotFound') {
-            return exits.notFound({ message: 'User not found' });
-            }
-            throw err;
+        const { email } = inputs.data || {};
+
+        // Validate required email
+        if (!email) {
+          const error = new Error('Email is required');
+          error.code = 'ERROR40';
+          throw error;
         }
-        const updatedUser = await User.updateOne({ email: inputs.email }).set({
-        name: inputs.name, description: inputs.description, age: inputs.age});
-        return exits.success({ user: updatedUser });
-      } catch (error) {
-        sails.log.error('Error updating user:', error);
-        return exits.fail({ message: error.message });
+
+        // Validate email format
+        await sails.helpers.user.validateEmail.with({ email });
+
+        // Ensure user exists
+        await sails.helpers.user.checkEmailExits.with({
+          email,
+          shouldExist: true
+        });
+
+        // Build update fields from allowed keys only
+        const allowedKeys = ['name', 'description', 'age', 'status'];
+        const toUpdate = _.pickBy(_.pick(inputs.data, allowedKeys), _.identity);
+
+        if (_.isEmpty(toUpdate)) {
+          const error = new Error('No valid fields to update');
+          error.code = 'ERROR40';
+          throw error;
+        }
+
+        const updatedUser = await sails.models.user.updateOne({ email }).set(toUpdate);
+
+        if (!updatedUser) {
+          const error = new Error('User not found');
+          error.code = 'ERROR01';
+          throw error;
+        }
+
+        const { password, ...sanitized } = updatedUser;
+
+        return {
+          message: 'User updated successfully',
+          data: sanitized
+        };
+      } catch (err) {
+        sails.log.error('Error updating user:', err);
+        if (err.code) {
+          throw err;
+        }
+        const error = new Error(err.message || 'Failed to update user');
+        error.code = 'ERROR99';
+        throw error;
       }
     }
 }

@@ -1,59 +1,71 @@
 
-
 module.exports = {
-    friendlyName: 'create new user',
-    description: 'Create a new user with the provided details.',
- 
-    inputs: {
-    name: { type: 'string', required: true },
-    email: { type: 'string', required: true, isEmail: true },
-    password: { type: 'string', required: true, minLength: 6 },
-    age: { type: 'number', required: false, min: 0 },
-    description: { type: 'string', required: false }
+  friendlyName: 'Create new user',
+  description: 'Create a new user with the provided details.',
+
+  inputs: {
+    data: {
+      type: 'ref',  // ✅ Nhận object từ controller
+      required: true,
+      description: 'Object containing user data (name, email, password, etc)'
+    }
   },
-  exits: {
-    success: {
-        description: 'User created successfully.',
-        },
-    fail:{
-        description: 'Failed to create user.',
-    }
 
- },
-    fn: async function (inputs, exits) {
-        try {
-            // Kiểm tra email đã tồn tại chưa
-     try {
-        await sails.helpers.user.validateUserExists.with({
-          email: inputs.email,
-          shouldExist: true, // kiểm tra user có tồn tại hay không
-        });
-      } catch (err) {
-        if (err.exit === 'emailExists') {
-          return exits.conflict({ message: 'Email already exists' });
-        }
-        throw err; // ném lại lỗi khác
+  fn: async function (inputs) {
+    try {
+      // ✅ Destructure data từ inputs.data
+      const { 
+        name, 
+        email, 
+        password, 
+        description, 
+        age 
+      } = inputs.data || {};
+      
+      // ✅ Validate email formats
+      await sails.helpers.user.validateEmail.with({
+        email: email  // ← Dùng email từ data
+      });
+      
+      // ✅ Check email exists
+      await sails.helpers.user.checkEmailExits.with({
+        email: email  // ← Dùng email từ data
+      });
+
+
+      // ✅ Generate UUID
+      const id = await sails.helpers.utils.generateUuid();
+
+      // ✅ Create user với data đã validate
+      const newUser = await User.create({
+        id,
+        name,        // ← Dùng name từ data
+        email,       // ← Dùng email từ data
+        password,    // Let model hook hash it
+        description, // ← Dùng description từ data (nếu có)
+        age         // ← Dùng age từ data (nếu có)
+      }).fetch();
+
+      // ✅ Remove sensitive data
+      const { password: _, ...sanitizedUser } = newUser;
+
+      // ✅ Return user data
+      return {
+        user: sanitizedUser
+      };
+
+    } catch (err) {
+      sails.log.error('Error in createUser helper:', err);
+
+      // ✅ Throw error với code
+      if (err.code) {
+        throw err;
       }
-        const hashedPassword = await sails.helpers.user.hashPassword.with({
-            password: inputs.password
-        });
-        // Tạo UUID cho user
-        const id = await sails.helpers.utils.generateUuid();
-         const newUser = await User.create({
-            id,
-            name: inputs.name,
-            email: inputs.email,
-            password: hashedPassword,
-            description: inputs.description,
-            age: inputs.age
-        }).fetch();
 
-        return exits.success({ user: newUser });
-        } catch (error) {
-            sails.log.error('Error creating user:', error);
-            return exits.fail({ message: error.message });
-        }
+      // ✅ Generic error
+      const error = new Error(err.message || 'Failed to create user');
+      error.code = 'ERROR99';
+      throw error;
     }
-}
-
-    
+  }
+};

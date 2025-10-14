@@ -91,6 +91,9 @@ module.exports['swagger-generator'] = {
       paths['/user/{email}'].put = { ...paths['/user/{email}'].put };
       paths['/user/{email}'].delete = { ...paths['/user/{email}'].delete };
     }
+
+    
   },
+  
   
 };

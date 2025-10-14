@@ -1,3 +1,5 @@
+
+
 module.exports = {
   friendlyName: 'Hash password',
   description: 'Hash a password using bcrypt.',
@@ -17,7 +19,7 @@ module.exports = {
   },
 
   fn: async function (inputs, exits) {
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(inputs.password, salt);
     return exits.success(hashedPassword);

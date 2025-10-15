@@ -36,7 +36,11 @@ module.exports = {
       try {
         const result = await sails.helpers.category.getCategory.with({ data: inputs });
   
-        return this.res.success(result);
+        return this.res.success({
+          data: result, 
+          message: 'Categories retrieved successfully',
+          status: 200
+        });
       } catch (err) {
         sails.log.error('Error in list-categories:', err);
   

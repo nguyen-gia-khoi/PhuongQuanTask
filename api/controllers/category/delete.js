@@ -7,7 +7,11 @@ module.exports = {
     fn: async function (inputs) {
         try {
             const result = await sails.helpers.category.destroyCategory.with({ code: inputs.code });
-            return this.res.success(result);
+            return this.res.success({
+                data:result,
+                message: 'Category deleted successfully',
+                status: 200
+            });
         }catch(err){
             sails.log.error('Error in delete-category:', err);
             if (err.code) {

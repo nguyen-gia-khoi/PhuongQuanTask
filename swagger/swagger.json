@@ -65,8 +65,7 @@
             "uniqueItems": true
           },
           "name": {
-            "type": "string",
-            "uniqueItems": true
+            "type": "string"
           },
           "code": {
             "type": "string",
@@ -96,6 +95,155 @@
           },
           "note": {
             "type": "string"
+          }
+        }
+      },
+      "product": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/product-without-required-constraint"
+          },
+          {
+            "required": [
+              "id",
+              "name"
+            ]
+          }
+        ]
+      },
+      "product-without-required-constraint": {
+        "type": "object",
+        "description": "Sails ORM Model **Product**",
+        "properties": {
+          "createdAt": {
+            "type": "number",
+            "format": "double"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "double"
+          },
+          "id": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "number",
+            "format": "double",
+            "default": 0,
+            "description": "0: active, 1: inactive"
+          },
+          "type": {
+            "type": "number",
+            "format": "double",
+            "default": 0,
+            "description": "0: normal"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "configuration": {},
+          "productCategories": {
+            "description": "Array of **productcategory**'s or array of FK's when creating / updating / not populated",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productcategory"
+            }
+          }
+        }
+      },
+      "productcategory": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/productcategory-without-required-constraint"
+          },
+          {
+            "required": [
+              "id",
+              "name",
+              "code",
+              "product",
+              "category"
+            ]
+          }
+        ]
+      },
+      "productcategory-without-required-constraint": {
+        "type": "object",
+        "description": "Sails ORM Model **ProductCategory**",
+        "properties": {
+          "createdAt": {
+            "type": "number",
+            "format": "double"
+          },
+          "updatedAt": {
+            "type": "number",
+            "format": "double"
+          },
+          "id": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "uniqueItems": true
+          },
+          "status": {
+            "type": "number",
+            "format": "double",
+            "default": 1,
+            "example": 1
+          },
+          "type": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "product": {
+            "description": "JSON dictionary representing the **product** instance or FK when creating / updating / not populated",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/product"
+              }
+            ]
+          },
+          "category": {
+            "description": "JSON dictionary representing the **category** instance or FK when creating / updating / not populated",
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/category"
+              }
+            ]
           }
         }
       },
@@ -219,6 +367,10 @@
     {
       "name": "Category",
       "description": "Sails blueprint actions for the **Category** model"
+    },
+    {
+      "name": "Product",
+      "description": "Sails blueprint actions for the **Product** model"
     },
     {
       "name": "User",
@@ -578,6 +730,145 @@
         }
       }
     },
+    "/product": {
+      "post": {
+        "summary": "Create product",
+        "description": "Create a new product",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "summary": "Create product",
+        "description": "Create a new product",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "description",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "note",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "amount",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/auth/signin": {
       "post": {
         "summary": "Sign in",
@@ -669,7 +960,7 @@
           }
         }
       },
-      "put": {
+      "patch": {
         "summary": "Update user",
         "description": "Update a user by email",
         "tags": [
@@ -745,10 +1036,11 @@
             "description": "Internal server error"
           }
         }
-      }
+      },
+      "put": {}
     },
     "/category/{code}": {
-      "put": {
+      "patch": {
         "summary": "Update category",
         "description": "Update a category",
         "tags": [
@@ -842,6 +1134,90 @@
             "schema": {
               "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/product/{code}": {
+      "patch": {
+        "summary": "Update product",
+        "description": "Update product by ID",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Route pattern variable `code`"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete product",
+        "description": "Delete a product by code",
+        "tags": [
+          "Product"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The code of the product to delete"
           }
         ],
         "responses": {

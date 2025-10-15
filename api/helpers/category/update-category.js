@@ -44,20 +44,7 @@ module.exports = {
         throw error;
       }
 
-      // Nếu update name, kiểm tra name CHƯA tồn tại (unique)
-      if (toUpdate.name) {
-        const trimmedName = String(toUpdate.name).trim();
-        
-        // Kiểm tra name không được trùng với category khác
-        await sails.helpers.utils.checkNameExists.with({
-          model: 'category',
-          name: trimmedName,
-          shouldExist: false,  // name KHÔNG được tồn tại
-          normalize: false
-        });
-        
-        toUpdate.name = trimmedName;
-      }
+      
 
       // Validate status/type nếu có trong payload
       const validStatus = [0, 1, 2];

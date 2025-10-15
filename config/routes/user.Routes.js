@@ -19,6 +19,6 @@ module.exports = {
   'GET /user': 'user/list',
   'POST /user': 'user/create-user', 
   'DELETE /user/:email': 'user/delete',
-  'PUT /user/:email': 'user/update-user',
+  'PATCH /user/:email': 'user/update-user',
   'POST /auth/signin': 'user/signin',
 };

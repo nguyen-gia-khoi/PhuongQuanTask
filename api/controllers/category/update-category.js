@@ -12,7 +12,11 @@ module.exports = {
     fn: async function (inputs) {
         try {
             const result = await sails.helpers.category.updateCategory.with({ data: inputs });
-            return this.res.success(result);
+            return this.res.success({
+                data: result,
+                message: 'Category updated successfully',
+                status: 200
+            });
         } catch (err) {
             sails.log.error('Error in update-category:', err);
             if (err.code) {

@@ -36,15 +36,6 @@ module.exports = {
         });
       }
 
-      // Validate name nếu có truyền (tương tự)
-      if (name) {
-        await sails.helpers.utils.checkNameExists.with({
-          model: 'category',
-          name: name,
-          shouldExist: true,
-          normalize: true
-        });
-      }
 
       const skip = (page - 1) * limit;
 

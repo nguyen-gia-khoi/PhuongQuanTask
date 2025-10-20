@@ -25,20 +25,26 @@ module.exports = {
 
     try {
       // ✅ Chuẩn hóa code
+      const normalizedModel = String(model).toLowerCase();
       const normalizedCode = String(code).trim().toUpperCase();
 
-      // ✅ Kiểm tra model chính tồn tại
-      if (!sails.models[model]) {
-        const error = new Error(`Model "${model}" does not exist`);
-        error.code = 'ERROR_MODEL_NOT_FOUND';
+      // ✅ Kiểm tra model tồn tại
+      const MainModel = sails.models[normalizedModel];
+      if (!MainModel) {
+        const error = new Error(`Model "${normalizedModel}" does not exist`);
+        error.code = 'ERROR91';
         throw error;
       }
 
       // ✅ Kiểm tra bản ghi tồn tại
-      const record = await sails.models[model].findOne({ code: normalizedCode });
-      if (!record) {
-        const error = new Error(`${model} not found`);
-        error.code = 'ERROR_NOT_FOUND';
+      const recordId = await sails.helpers.utils.findIdByCode.with({
+        model: normalizedModel,
+        code: normalizedCode,
+      });
+
+      if (!recordId) {
+        const error = new Error(`${normalizedModel} not found`);
+        error.code = 'ERROR91';
         throw error;
       }
 
@@ -46,20 +52,19 @@ module.exports = {
       for (const relation of relations) {
         const { model: relModel, field, label } = relation;
 
-        if (!sails.models[relModel]) continue; // Bỏ qua nếu model chưa tồn tại
+        if (!sails.models[relModel]) continue; // Bỏ qua nếu model liên quan không tồn tại
 
-        const count = await sails.models[relModel].count({ [field]: normalizedCode });
+        const count = await sails.models[relModel].count({ [field]: recordId });
 
         if (count > 0) {
-          const error = new Error(
-            `Cannot delete ${model}: still referenced in ${label || relModel} (${count} record${count > 1 ? 's' : ''})`
-          );
-          error.code = 'ERROR_RELATION_EXISTS';
+          const error = new Error('Record has related data');
+          error.code = 'ERROR44';
           throw error;
         }
       }
 
-      return true; // ✅ Không có ràng buộc
+      // ✅ Không có ràng buộc nào
+      return true;
     } catch (err) {
       sails.log.error('Error in helper check-relation-exists:', err);
       throw err;

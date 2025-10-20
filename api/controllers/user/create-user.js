@@ -3,40 +3,11 @@ module.exports = {
   friendlyName: 'Create user',
   description: 'Create a new user',
 
-  inputs: {
-    name: { 
-      type: 'string', 
-      required: true,
-      description: "User's full name"
-    },
-    email: { 
-      type: 'string', 
-      required: true,
-      description: "User's email address"
-    },
-    password: { 
-      type: 'string', 
-      required: true, 
-      minLength: 6,
-      description: "User's password (minimum 6 characters)"
-    },
-    description: { 
-      type: 'string',
-      description: "Optional user description"
-    },
-    age: { 
-      type: 'number',
-      min: 0,
-      max: 150,
-      description: "User's age"
-    }
-  },
-
-  fn: async function (inputs) {
+  fn: async function () {
     try {
       // Gọi helper với inputs
       const result = await sails.helpers.user.createUser.with({
-        data: inputs
+        data: this.req.body
       });
 
       // Success response

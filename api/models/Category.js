@@ -1,5 +1,6 @@
 
 module.exports = {
+  tableName:'category',
   attributes: {
     id: { type: 'string', columnName: 'id', required: true, unique: true },
     name: { type: 'string', required: true },
@@ -8,9 +9,12 @@ module.exports = {
     type: { type: 'number', isIn: [0, 1], defaultsTo: 0 },
     description: { type: 'string' },
     note: { type: 'string' },
+    
+    products: {
+      collection: 'product',
+      through: 'productcategory',
+      via: 'category'
+    }
   },
-  productCategories: {
-    collection: 'productcategory',
-    via: 'category'
-  },
+   
 };

@@ -17,7 +17,8 @@ module.exports = {
       const { 
         name, 
         email, 
-        password, 
+        password,
+        role, 
         description, 
         age 
       } = inputs.data || {};
@@ -42,6 +43,7 @@ module.exports = {
         name,        // ← Dùng name từ data
         email,       // ← Dùng email từ data
         password,    // Let model hook hash it
+        role,
         description, // ← Dùng description từ data (nếu có)
         age         // ← Dùng age từ data (nếu có)
       }).fetch();

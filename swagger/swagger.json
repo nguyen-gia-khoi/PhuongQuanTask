@@ -95,6 +95,13 @@
           },
           "note": {
             "type": "string"
+          },
+          "products": {
+            "description": "Array of **product**'s or array of FK's when creating / updating / not populated",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/product"
+            }
           }
         }
       },
@@ -133,7 +140,8 @@
           },
           "code": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "uniqueItems": true
           },
           "status": {
             "type": "number",
@@ -161,11 +169,11 @@
             "nullable": true
           },
           "configuration": {},
-          "productCategories": {
-            "description": "Array of **productcategory**'s or array of FK's when creating / updating / not populated",
+          "categories": {
+            "description": "Array of **category**'s or array of FK's when creating / updating / not populated",
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/productcategory"
+              "$ref": "#/components/schemas/category"
             }
           }
         }
@@ -213,13 +221,19 @@
           "status": {
             "type": "number",
             "format": "double",
-            "default": 1,
-            "example": 1
+            "default": 0,
+            "description": "0: active, 1: inactive, 2: deleted",
+            "enum": [
+              0,
+              1,
+              2
+            ]
           },
           "type": {
             "type": "number",
             "format": "double",
-            "default": 0
+            "default": 0,
+            "description": "0: normal"
           },
           "description": {
             "type": "string",
@@ -298,6 +312,13 @@
             "format": "double",
             "minimum": 0
           },
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "admin"
+            ]
+          },
           "status": {
             "type": "string",
             "default": "active",
@@ -375,9 +396,204 @@
     {
       "name": "User",
       "description": "Sails blueprint actions for the **User** model"
+    },
+    {
+      "name": "Delete product"
+    },
+    {
+      "name": "List product categories"
+    },
+    {
+      "name": "Update product category"
+    },
+    {
+      "name": "Destroy product-category"
     }
   ],
   "paths": {
+    "/product-category": {
+      "post": {
+        "summary": "Delete product",
+        "description": "Delete a product by code",
+        "tags": [
+          "Delete product"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "get": {
+        "summary": "List product categories",
+        "description": "Retrieve productcategory links with filters, pagination, and sorting.",
+        "tags": [
+          "List product categories"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by name"
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by code (normalized uppercase)"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Filter by status (0, 1)"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Filter by type (0, 1)"
+          },
+          {
+            "in": "query",
+            "name": "categoryCode",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by category code"
+          },
+          {
+            "in": "query",
+            "name": "productCode",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by product code"
+          },
+          {
+            "in": "query",
+            "name": "minAmount",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Filter by product amount >= minAmount"
+          },
+          {
+            "in": "query",
+            "name": "maxAmount",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            },
+            "description": "Filter by product amount <= maxAmount"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 1,
+              "example": 1
+            },
+            "description": "Current page"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "double",
+              "default": 10,
+              "example": 10
+            },
+            "description": "Items per page"
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sort field (name, code, status, type, createdAt, updatedAt)"
+          },
+          {
+            "in": "query",
+            "name": "sortDir",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Sort direction (ASC | DESC)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
         "summary": "List users",
@@ -478,57 +694,7 @@
         "tags": [
           "User"
         ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "name",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "User's full name"
-          },
-          {
-            "in": "query",
-            "name": "email",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "User's email address"
-          },
-          {
-            "in": "query",
-            "name": "password",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 6
-            },
-            "description": "User's password (minimum 6 characters)"
-          },
-          {
-            "in": "query",
-            "name": "description",
-            "required": false,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Optional user description"
-          },
-          {
-            "in": "query",
-            "name": "age",
-            "required": false,
-            "schema": {
-              "type": "number",
-              "format": "double",
-              "maximum": 150,
-              "minimum": 0
-            },
-            "description": "User's age"
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Success"
@@ -892,6 +1058,90 @@
             "schema": {
               "type": "string"
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/product-category/{code}": {
+      "patch": {
+        "summary": "Update product category",
+        "description": "Update a product category by code",
+        "tags": [
+          "Update product category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Route pattern variable `code`"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Resource not found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Destroy product-category",
+        "description": "Delete a product-category record by code.",
+        "tags": [
+          "Destroy product-category"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Route pattern variable `code`"
           }
         ],
         "responses": {

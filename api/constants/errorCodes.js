@@ -18,6 +18,8 @@ module.exports = {
   ERROR40: { status: 400, defaultMessage: 'Missing required field' },
   ERROR41: { status: 400, defaultMessage: 'Invalid input format' },
   ERROR42: { status: 422, defaultMessage: 'Validation failed' },
+  ERROR43: { status: 404, defaultMessage: 'Not found or code unavailable' },
+  ERROR44: { status: 400, defaultMessage: 'Relationship exists, cannot delete' },
   
   // ===== DATABASE ERRORS (ERROR60-79) =====
   ERROR60: { status: 500, defaultMessage: 'Database connection failed' },

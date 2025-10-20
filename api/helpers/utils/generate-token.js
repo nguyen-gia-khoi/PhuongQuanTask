@@ -25,6 +25,7 @@ module.exports = {
         sub: inputs.user.id,
         email: inputs.user.email,
         status: inputs.user.status || 'active',
+        role: inputs.user.role 
       };
 
       const token = jwt.sign(payload, sails.config.custom.jwtSecret, {

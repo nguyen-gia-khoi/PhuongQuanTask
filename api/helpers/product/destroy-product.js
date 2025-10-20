@@ -22,6 +22,13 @@ module.exports = {
                 shouldExist: true,
                 normalize: false
             });
+            await sails.helpers.utils.checkRelationshipExists.with({
+                model: 'product', // ✅ model gốc
+                code: normalizedCode, // ✅ code hoặc id của product cần xóa
+                relations: [
+                    { model: 'productcategory', field: 'product', label: 'Product-Category link' },
+                ],
+            });
             const deleteProduct = await sails.models.product.destroyOne({ 
                 code: normalizedCode 
               });

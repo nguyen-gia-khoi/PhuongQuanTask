@@ -11,6 +11,7 @@
 const userRoutes = require('./routes/user.Routes');
 const categoryRoutes = require('./routes/category.Routes'); // <= đổi từ "categoty" thành "category"
 const productRoutes = require('./routes/product.Routes');
+const productCategoryRoutes = require('./routes/productCategory.Routes');
 const path = require('path');
 const getSwaggerHtml = require('../api/utils/swaggerHtml');
 
@@ -18,6 +19,7 @@ module.exports.routes = {
   ...userRoutes,
   ...categoryRoutes,
   ...productRoutes,
+  ...productCategoryRoutes,
   // Swagger JSON served directly from generated file
   'GET /swagger.json': function(req, res) {
     const swaggerPath = path.join(__dirname, '..', 'swagger', 'swagger.json');

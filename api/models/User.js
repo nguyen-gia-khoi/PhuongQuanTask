@@ -8,6 +8,7 @@ module.exports = {
     password: { type: 'string', required: true },
     description: { type: 'string' },
     age: { type: 'number', min: 0 },
+    role: { type: 'string', isIn: ['user', 'admin'] },
     status: { type: 'string', isIn: ['active', 'inactive'], defaultsTo: 'active' },
   },
 

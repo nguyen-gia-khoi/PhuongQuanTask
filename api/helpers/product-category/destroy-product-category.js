@@ -1,8 +1,14 @@
+const { fn } = require("./update-product-category");
+
 module.exports = {
-    friendlyName: 'Destroy category',
-    description: 'Destroy a category',
+    friendlyName: 'Destroy product-category',  
+    description: 'Xóa một liên kết giữa product và category dựa trên code của liên kết đó.',
     inputs: {
-        code: { type: 'string', required: true },
+        code: {
+            type: 'string',
+            required: true,
+            description: 'product-category needs to be deleted.'
+        }
     },
     fn: async function (inputs) {
         try {
@@ -13,35 +19,27 @@ module.exports = {
                 throw error;
             }
             const normalizedCode = String(code).trim().toUpperCase();
-
             await sails.helpers.utils.checkCodeExists.with({
-                model: 'category',
+                model: 'productcategory',
                 code: normalizedCode,
                 shouldExist: true,
                 normalize: false
             });
-            await sails.helpers.utils.checkRelationshipExists.with({
-                model: 'category', // ✅ model gốc
-                code: normalizedCode, // ✅ code hoặc id của category cần xóa
-                relations: [
-                    { model: 'productcategory', field: 'category', label: 'Product-Category link' },
-                ],
-            });
-            const deletedCategory = await sails.models.category.destroyOne({ 
+            const deletedProductCategory = await sails.models.productcategory.destroyOne({ 
                 code: normalizedCode 
               });
-            if (!deletedCategory) {
+            if (!deletedProductCategory) {
                 const error = new Error('Failed to destroy category');
                 error.code = 'ERROR99';
                 throw error;
             }
             return { message: 'Category destroyed successfully' };
-        } catch (error) {
-            sails.log.error('Error in destroy-category:', error);
-            if (error.code) {
-                throw error;
+        } catch (err) {
+            sails.log.error('Error in destroy-product-category:', err);
+            if (err.code) {
+                throw err;
             }
-            error = new Error(error.message || 'Failed to destroy category');
+            const error = new Error(err.message || 'Failed to destroy product-category');
             error.code = 'ERROR99';
             throw error;
         }

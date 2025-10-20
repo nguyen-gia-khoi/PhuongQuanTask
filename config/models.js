@@ -14,6 +14,5 @@ module.exports.models = {
   dataEncryptionKeys: {
     default: 'igwPHltlLUCFEfJReMJsT5VQ0MYxJW4I33/T+eA0MDM='
   },
-
   cascadeOnDestroy: true
 };

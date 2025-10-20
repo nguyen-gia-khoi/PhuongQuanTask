@@ -13,7 +13,7 @@ module.exports = {
                 message: 'Product category created successfully',
                 status: 201
             });
-        } catch (error) {
+        } catch (err) {
             sails.log.error('Error in create-product-category:', err);
             if (err.code) {
                 return this.res.fail(err.code);
